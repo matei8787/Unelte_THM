@@ -1,0 +1,50 @@
+#!/bin/bash
+
+SELF_DIR=$(pwd)
+
+# Check if an argument is provided
+if [ -z "$1" ]; then
+    echo "Usage: nmap_self <IP> [-Pn]"
+    exit 1
+fi
+#check if -Pn is provided
+if [ "$2" == "-Pn" ]; then
+    PING_OPTION="-Pn"
+else
+    PING_OPTION=""
+fi
+IP="$1"
+# Create the nmap directory if it doesn't exist
+NMAP_DIR="$SELF_DIR/nmap"
+mkdir -p "$NMAP_DIR"
+# Change to the nmap directory
+cd "$NMAP_DIR" || exit
+# Run nmap first scan
+nmap -p- -T5 -vv $PING_OPTION $IP -oG nmap_tmp.txt
+# Extract open ports and save to nmap.txt
+grep -oP '\d+/open' nmap_tmp.txt | cut -d '/' -f 1 > nmap.txt
+# Save only open ports with no unknown Service
+grep -v 'unknown' nmap.txt > nmap_tmp.txt
+# Check if nmap.txt is empty
+if [ ! -s nmap_tmp.txt ]; then
+    echo "No open ports found."
+    rm nmap_tmp.txt
+    exit 0
+fi
+# Sort and remove duplicates from nmap.txt
+sort -u nmap.txt -o nmap.txt
+# Print open ports and the number of them
+echo "Number of open ports: $(wc -l < nmap.txt)"
+echo "Open ports found:"
+cat nmap.txt
+#retrieve the open ports as a comma-separated list
+OPEN_PORTS=$(tr '\n' ',' < nmap.txt | sed 's/,$//')
+# Run nmap service scan
+nmap -sVC -p $OPEN_PORTS -T5 -vv $PING_OPTION $IP -oN scan.txt
+# Remove temporary file
+rm nmap_tmp.txt
+rm nmap.txt
+# Print completion message
+echo "Nmap scan completed. Results saved in $NMAP_DIR/scan.txt"
+# Return to the original directory
+cd "$SELF_DIR" || exit

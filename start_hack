@@ -1,0 +1,30 @@
+#!/bin/bash
+# Check if an argument is provided
+
+SCRIPT_DIR="/home/matei/Desktop/info/Personal/Scripts"
+
+if [ -z "$1" ]; then
+    echo "Usage: start_hack <directory_name> [-b | buff_overflow]"
+    exit 1
+fi
+
+# check if 3 arguments are provided
+if [ "$#" -ne 2 ]; then
+    echo "Usage: start_hack <directory_name> [-b | buff_overflow]"
+    exit 1
+fi
+
+# Create the directory
+mkdir "$1"
+cd "$1" || exit
+
+mkdir nmap
+mkdir gobuster
+mkdir scripts
+touch findings.txt
+if [ "$2" == "-b" ] ; then
+    cd scripts || exit
+    # Copy the exploit template and fuzzer to scripts
+    cp "$SCRIPT_DIR"/exploit_template.py .
+    cp "$SCRIPT_DIR"/fuzzer.py .
+fi
