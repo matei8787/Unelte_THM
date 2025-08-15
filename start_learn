@@ -1,0 +1,12 @@
+#!/bin/bash
+
+if [ -z "$1" ]; then
+    echo "Usage: start_learn <directory_name>"
+    exit 1
+fi
+
+# Create the directory and navigate into it
+mkdir -p "$1"
+cd "$1" || exit
+
+touch learn.txt

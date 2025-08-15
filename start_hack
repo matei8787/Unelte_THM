@@ -7,11 +7,12 @@ if [ -z "$1" ]; then
     echo "Usage: start_hack <directory_name> [-b | buff_overflow]"
     exit 1
 fi
-
+BUF=0
 # check if 3 arguments are provided
-if [ "$#" -ne 2 ]; then
-    echo "Usage: start_hack <directory_name> [-b | buff_overflow]"
-    exit 1
+if [ "$#" -gt 1 ]; then
+    BUF=1
+    echo "Buffer overflow attack selected"
+    echo "Number of arguments: $#"
 fi
 
 # Create the directory
@@ -22,7 +23,7 @@ mkdir nmap
 mkdir gobuster
 mkdir scripts
 touch findings.txt
-if [ "$2" == "-b" ] ; then
+if [ "$BUF" -eq 1 ] ; then
     cd scripts || exit
     # Copy the exploit template and fuzzer to scripts
     cp "$SCRIPT_DIR"/exploit_template.py .
